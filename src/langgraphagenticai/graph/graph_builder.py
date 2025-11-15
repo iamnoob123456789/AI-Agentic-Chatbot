@@ -27,3 +27,5 @@ class GraphBuilder:
        """
        if usecase=="Basic Chatbot":
            self.basic_chatbot_build_graph(usecase)
+        
+        return self.graph_builder.compile()
