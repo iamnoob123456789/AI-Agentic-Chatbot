@@ -1,10 +1,10 @@
 from typing import Any, Dict, Optional
 from langgraph.graph import StateGraph, START, END
 from langchain_core.language_models.base import BaseLanguageModel
-
 from src.langgraphagenticai.state.state import State
 from src.langgraphagenticai.nodes.basic_chatbot_node import BasicChatBotNode
-
+from src.langgraphagenticai.tools.search_tool import get_tools,create_tool_node
+from src.langgraphagenticai.nodes.chatbot_with_Tool_node import ChatBotWithToolNode, ChatbotWithToolNode
 class GraphBuilder:
     def __init__(self, llm: Optional[BaseLanguageModel] = None):
         """Initialize the GraphBuilder with an optional LLM.
@@ -37,6 +37,30 @@ class GraphBuilder:
         self.graph_builder.add_edge("chatbot", END)
         
         return self.graph_builder.compile()
+    
+    def chatbot_ith_tools_build_graph(self):
+       """
+        Build an advanced chatbot grpah with tool integration
+        This method creates a chatbot grpah that includes both a chatbot node
+        and a tool node.The chatbot node is the entry point
+        """
+        #Define the tool and tool node
+        tools=get_tools()
+        tool_node=create_tool_node(tools)
+        
+        #Define the LLM
+        llm=self.llm
+        
+        #Define the chatbot node
+        obj_chatbot_with_node=ChatbotWithToolNode(llm)
+        
+        #Add nodes
+        self.graph_builder.add_node("chatbot","")
+        self.graph_builder.add_node("tools",tool_node)
+        #Define conditional and direct edges
+        self.graph_builder.add_edge(START,"chatbot")
+        self.graph_builder.add_conditional_edges("chatbot","")
+        self.graph_builder.add_edge("tools","chatbot")
     
     def setup_graph(self, usecase: str) -> Any:
         """
